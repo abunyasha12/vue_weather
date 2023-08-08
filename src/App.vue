@@ -1,12 +1,12 @@
 <script setup lang="ts">
     import { ref, computed, Ref } from 'vue'
     import { useI18n } from 'vue-i18n'
-    import { useLocale } from 'vuetify/lib/framework.mjs'
     import { getCoordinates, CityNotFoundError} from './getCoordinates'
-    import { getWeatherCurrent, weatherDataCurrent } from './getWeatherCurrent'
+    import { getWeatherCurrent, WeatherDataCurrent } from './getWeatherCurrent'
     import { getFirstGoogleImageLink } from './getFirstGoogleImageLink'
+    import { useLocale } from 'vuetify/lib/framework.mjs'
 
-    const locales = {
+    const locales: Record<string, Record<string, string>> = {
     en: {
           "name": "English",
           "code": "en"
@@ -15,14 +15,14 @@
             "name": "Русский",
             "code": "ru"
         }
-}
+    }
 
     const {t} = useI18n()
 
-    let weatherData = ref<undefined | weatherDataCurrent>(undefined)
+    let weatherData = ref<undefined | WeatherDataCurrent>(undefined)
     let loading = ref(false)
     let city = ref<undefined | string>(undefined)
-    let lastCityLocales = ref<undefined | object>(undefined)
+    let lastCityLocales = ref<undefined | Record<string, string>>(undefined)
     const cityRules = [
         (value: string) => {if (value) {return true}; return t("cityRequired")}
     ]
@@ -36,7 +36,7 @@
 
     const cloudiness = computed(() => {
         let clouds = weatherData.value?.clouds
-        if (!clouds) return
+        if (clouds === undefined) return
         if (clouds < 20) {
             return t("sunny")
         } else if (clouds < 40) {
@@ -75,15 +75,15 @@
         return localStorage.locale === undefined ? "en" : localStorage.locale
     })
     currentLocale.value.current = savedLocale.value
+    currentLocale.value.name = locales[savedLocale.value].name
 
     async function getWeather(city: string) {
         loading.value = true
-        let lat, lon, local_names
-        let coords
+        let lat, lon
+        let local_names
 
         try {
-            coords = await getCoordinates(city);
-            ({lat, lon, local_names} = coords)
+            ({lat, lon, local_names} = await getCoordinates(city))
 
         } catch (e) {
 
@@ -101,9 +101,7 @@
         lastCityLocales.value = local_names
 
         if (!storedSearches.value.includes(city)) { //если город был найден добавляем в историю поиска
-            console.log(city)
             storedSearches.value.unshift(city)
-            console.log(storedSearches.value)
             localStorage.storedSearches = JSON.stringify(storedSearches.value)
         }
 
@@ -142,7 +140,7 @@
                     <v-btn
                     v-bind="props"
                     >
-                    {{ locales[currentLocale.current].name }}
+                    {{ $vuetify.locale.name }}
                     </v-btn>
                 </template>
                 <v-list>
@@ -176,14 +174,14 @@
                 <v-btn
                     variant="outlined"
                     :loading="loading"
-                    @click='getWeather(city)'
+                    @click='getWeather(city ?? "Nowhere")'
                     :disabled="isDisabled">
                     {{ $t("getWeatherBtn") }}
                 </v-btn>
                 <v-slide-y-reverse-transition v-show="weatherData">
                     <v-card v-if="weatherData" class="text-left my-5">
                         <v-img max-height="200" :src=cityImg aspect-ratio="0.5" cover/>
-                        <v-card-title>{{ $t("weatherIn") }} {{ lastCityLocales[currentLocale.current] }}</v-card-title>    
+                        <v-card-title v-if="lastCityLocales">{{ $t("weatherIn") }} {{ lastCityLocales[currentLocale.current] }}</v-card-title>    
                         <v-card-text>
                             {{ $t("temperature", [+(weatherData.temp - 273.15).toFixed(0), +(weatherData.feels_like - 273.15).toFixed(0)]) }} <br>
                             <!-- Температура {{ +(weatherJson.current.temp - 273.15).toFixed(0) }} C, ощущается как {{ +(weatherJson.current.feels_like - 273.15).toFixed(0) }} C<br> -->

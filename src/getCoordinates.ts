@@ -1,7 +1,7 @@
-export interface cityCoordinates {
+export interface CityCoordinates {
     lat: number
     lon: number
-    local_names: object;
+    local_names: Record<string, string>;
 }
 
 export class CityNotFoundError extends Error {
@@ -12,7 +12,7 @@ export class CityNotFoundError extends Error {
 }
 
 
-export async function getCoordinates(cityName: string): Promise<cityCoordinates> {
+export async function getCoordinates(cityName: string): Promise<CityCoordinates> {
     let APIkey = "63473091e3dbe3b4db55f48ee898d316"
     try {
 

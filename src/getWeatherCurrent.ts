@@ -1,4 +1,4 @@
-export interface weatherDataCurrent {
+export interface WeatherDataCurrent {
       dt: number,
       sunrise: number,
       sunset: number,
@@ -24,7 +24,7 @@ export interface weatherDataCurrent {
    }
 
 
-export async function getWeatherCurrent(lat:number, lon:number): Promise<weatherDataCurrent> {
+export async function getWeatherCurrent(lat:number, lon:number): Promise<WeatherDataCurrent> {
     let data
     let APIkey = "63473091e3dbe3b4db55f48ee898d316"
     try {
