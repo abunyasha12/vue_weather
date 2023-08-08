@@ -5,7 +5,7 @@ export interface CityCoordinates {
 }
 
 export class CityNotFoundError extends Error {
-    constructor() {
+    private constructor() {
         super("City not found!")
         this.name = "CityNotFoundError"
     }

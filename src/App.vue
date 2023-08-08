@@ -86,7 +86,7 @@
 
     async function getWeather(city: string) {
         loading.value = true
-        let lat, lon
+        let lat; let lon
         let local_names
 
         try {
@@ -107,7 +107,7 @@
 
         lastCityLocales.value = local_names
 
-        if (!storedSearches.value.includes(city)) { //если город был найден добавляем в историю поиска
+        if (!storedSearches.value.includes(city)) { // если город был найден добавляем в историю поиска
             storedSearches.value.unshift(city)
             localStorage.storedSearches = JSON.stringify(storedSearches.value)
         }
@@ -136,7 +136,7 @@
     }
 
     function switchTheme() {
-        theme.global.name.value = (theme.global.name.value == "light") ? "dark" : "light"
+        theme.global.name.value = (theme.global.name.value === "light") ? "dark" : "light"
         localStorage.theme = theme.global.name.value
     }
 
@@ -144,75 +144,105 @@
 
 
 <template>
-    <body>
+  <body>
     <v-app>
-        <v-app-bar elevation="1" style="max-width: 600px; left: 50%; transform: translate(-50%);">
-            <v-btn icon="mdi-theme-light-dark" @click="switchTheme()"></v-btn>
-            <v-app-bar-title>{{ $t("title") }}</v-app-bar-title>
-            <template v-slot:append>
-                <v-menu>
-                <template v-slot:activator="{ props }">
-                    <v-btn
-                    v-bind="props"
-                    >
-                    {{ currentLocale.name }}
-                    </v-btn>
-                </template>
-                <v-list>
-                    <v-list-item
-                    v-for="(item, index) in locales"
-                    :key="index"
-                    :value="item.name"
-                    @click="setLocale(item.code)"
-                    >
-                    <v-list-item-title>{{ item.name }}</v-list-item-title>
-                    </v-list-item>
-                </v-list>
-                </v-menu>
+      <v-app-bar
+        elevation="1"
+        style="max-width: 600px; left: 50%; transform: translate(-50%);"
+      >
+        <v-btn
+          icon="mdi-theme-light-dark"
+          @click="switchTheme()"
+        />
+
+        <v-app-bar-title>{{ $t("title") }}</v-app-bar-title>
+        <template #append>
+          <v-menu>
+            <template #activator="{ props }">
+              <v-btn
+                v-bind="props"
+              >
+                {{ currentLocale.name }}
+              </v-btn>
             </template>
-        </v-app-bar>
-        <v-container class="fill-height justify-center">            
-            <v-col align-self="center" class="text-center" style="max-width: 600px;">                        
-                <v-slide-y-reverse-transition v-show="alert">
-                    <v-alert @click="alert = ''" type="error" closable transition="slide-y-transition" class="m-15">{{ alert }}</v-alert>
-                </v-slide-y-reverse-transition>
-                <v-combobox 
-                        v-model="city" 
-                        :items=storedSearches 
-                        :rules="cityRules"
-                        elevation="6"
-                        clearable 
-                        :placeholder= '$t("cityFieldPlaceholder")'
-                        required
-                        theme="light"
-                        variant="solo-filled"/>
-                <v-btn
-                    variant="outlined"
-                    :loading="loading"
-                    @click='getWeather(city ?? "Nowhere")'
-                    :disabled="isDisabled">
-                    {{ $t("getWeatherBtn") }}
-                </v-btn>
-                <v-slide-y-reverse-transition v-show="weatherData">
-                    <v-card v-if="weatherData" class="text-left my-5">
-                        <v-img max-height="200" :src=cityImg aspect-ratio="0.5" cover/>
-                        <v-card-title v-if="lastCityLocales">{{ $t("weatherIn") }} {{ lastCityLocales[currentLocale.current.value] }}</v-card-title>    
-                        <v-card-text>
-                            {{ $t("temperature", [+(weatherData.temp - 273.15).toFixed(0), +(weatherData.feels_like - 273.15).toFixed(0)]) }} <br>
-                            <!-- Температура {{ +(weatherJson.current.temp - 273.15).toFixed(0) }} C, ощущается как {{ +(weatherJson.current.feels_like - 273.15).toFixed(0) }} C<br> -->
-                            {{ cloudiness }}<br>
-                            {{ $t("wind", [weatherData?.wind_speed]) }}, {{ windDirection }}<br>
-                            <!-- Ветер {{ weatherJson?.current.wind_speed}} м/с, {{ windDirection }}<br> -->
-                            {{ $t("pressure", [+(weatherData?.pressure * 0.750062).toFixed(2)]) }}<br>
-                            <!-- Давление {{ +(weatherJson?.current.pressure * 0.750062).toFixed(2)}} мм<br> -->
-                            {{ $t("humidity", [weatherData?.humidity]) }}<br>
-                            <!-- Относительная влажность {{ weatherJson?.current.humidity }}%<br> -->
-                        </v-card-text>
-                    </v-card>
-                </v-slide-y-reverse-transition>
-            </v-col>
-        </v-container>
+            <v-list>
+              <v-list-item
+                v-for="(item, index) in locales"
+                :key="index"
+                :value="item.name"
+                @click="setLocale(item.code)"
+              >
+                <v-list-item-title>{{ item.name }}</v-list-item-title>
+              </v-list-item>
+            </v-list>
+          </v-menu>
+        </template>
+      </v-app-bar>
+      <v-container class="fill-height justify-center">            
+        <v-col
+          align-self="center"
+          class="text-center"
+          style="max-width: 600px;"
+        >                        
+          <v-slide-y-reverse-transition v-show="alert">
+            <v-alert
+              type="error"
+              closable
+              class="m-15"
+              @click="alert = ''"
+            >
+              {{ alert }}
+            </v-alert>
+          </v-slide-y-reverse-transition>
+          <v-combobox 
+            v-model="city" 
+            :items="storedSearches" 
+            :rules="cityRules"
+            elevation="6"
+            clearable 
+            :placeholder="$t('cityFieldPlaceholder')"
+            required
+            theme="light"
+            variant="solo-filled"
+          />
+          <v-btn
+            variant="outlined"
+            :loading="loading"
+            :disabled="isDisabled"
+            @click="getWeather(city ?? &quot;Nowhere&quot;)"
+          >
+            {{ $t("getWeatherBtn") }}
+          </v-btn>
+          <v-slide-y-reverse-transition v-show="weatherData">
+            <v-card
+              v-if="weatherData"
+              class="text-left my-5"
+            >
+              <v-img
+                max-height="200"
+                :src="cityImg"
+                aspect-ratio="0.5"
+                cover
+              />
+              <v-card-title v-if="lastCityLocales">
+                {{ $t("weatherIn") }} {{ lastCityLocales[currentLocale.current.value] }}
+              </v-card-title>    
+              <v-card-text>
+                {{ $t("temperature", [+(weatherData.temp - 273.15).toFixed(0), +(weatherData.feels_like - 273.15).toFixed(0)]) }} <br>
+                <!-- Температура {{ +(weatherJson.current.temp - 273.15).toFixed(0) }} C, ощущается как {{ +(weatherJson.current.feels_like - 273.15).toFixed(0) }} C<br> -->
+                {{ cloudiness }}<br>
+                {{ $t("wind", [weatherData?.wind_speed]) }}, {{ windDirection }}<br>
+                <!-- Ветер {{ weatherJson?.current.wind_speed}} м/с, {{ windDirection }}<br> -->
+                {{ $t("pressure", [+(weatherData?.pressure * 0.750062).toFixed(2)]) }}<br>
+                <!-- Давление {{ +(weatherJson?.current.pressure * 0.750062).toFixed(2)}} мм<br> -->
+                {{ $t("humidity", [weatherData?.humidity]) }}<br>
+                <!-- Относительная влажность {{ weatherJson?.current.humidity }}%<br> -->
+              </v-card-text>
+            </v-card>
+          </v-slide-y-reverse-transition>
+        </v-col>
+      </v-container>
     </v-app>
-    </body>
+  </body>
 </template>
 ./locale/locales.js./locales.js
