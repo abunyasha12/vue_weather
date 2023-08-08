@@ -1,4 +1,5 @@
 {
+    "title": "Weather",
     "cityFieldPlaceholder": "City name",
     "getWeatherBtn": "Get weather",
     "cityRequired": "City name required",

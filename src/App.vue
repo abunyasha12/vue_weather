@@ -4,7 +4,7 @@
     import { getCoordinates, CityNotFoundError} from './getCoordinates'
     import { getWeatherCurrent, WeatherDataCurrent } from './getWeatherCurrent'
     import { getFirstGoogleImageLink } from './getFirstGoogleImageLink'
-    import { useLocale } from 'vuetify/lib/framework.mjs'
+    import { useLocale, useTheme } from 'vuetify/lib/framework.mjs'
 
     const locales: Record<string, Record<string, string>> = {
     en: {
@@ -18,6 +18,8 @@
     }
 
     const {t} = useI18n()
+    let theme = useTheme()
+    let currentLocale = useLocale()
 
     let weatherData = ref<undefined | WeatherDataCurrent>(undefined)
     let loading = ref(false)
@@ -27,7 +29,7 @@
         (value: string) => {if (value) {return true}; return t("cityRequired")}
     ]
     let alert = ref<undefined | string>(undefined)
-    let currentLocale = ref(useLocale())
+    
     let cityImg = ref<undefined | string>(undefined)
 
     const isDisabled = computed(() => {
@@ -74,8 +76,13 @@
     const savedLocale = computed(():string => {
         return localStorage.locale === undefined ? "en" : localStorage.locale
     })
-    currentLocale.value.current = savedLocale.value
-    currentLocale.value.name = locales[savedLocale.value].name
+    const savedTheme = computed(():string => {
+        return localStorage.theme === undefined ? "dark" : localStorage.theme
+    })
+
+    currentLocale.current.value = savedLocale.value
+    currentLocale.name = locales[savedLocale.value].name
+    theme.global.name.value = savedTheme.value
 
     async function getWeather(city: string) {
         loading.value = true
@@ -123,8 +130,14 @@
     }
 
     function setLocale(locale: string) {
-        currentLocale.value.current = locale
+        currentLocale.current.value = locale
+        currentLocale.name = locales[locale].name
         localStorage.locale = locale
+    }
+
+    function switchTheme() {
+        theme.global.name.value = (theme.global.name.value == "light") ? "dark" : "light"
+        localStorage.theme = theme.global.name.value
     }
 
 </script>
@@ -134,13 +147,15 @@
     <body>
     <v-app>
         <v-app-bar elevation="1" style="max-width: 600px; left: 50%; transform: translate(-50%);">
+            <v-btn icon="mdi-theme-light-dark" @click="switchTheme()"></v-btn>
+            <v-app-bar-title>{{ $t("title") }}</v-app-bar-title>
             <template v-slot:append>
                 <v-menu>
                 <template v-slot:activator="{ props }">
                     <v-btn
                     v-bind="props"
                     >
-                    {{ $vuetify.locale.name }}
+                    {{ currentLocale.name }}
                     </v-btn>
                 </template>
                 <v-list>
@@ -181,7 +196,7 @@
                 <v-slide-y-reverse-transition v-show="weatherData">
                     <v-card v-if="weatherData" class="text-left my-5">
                         <v-img max-height="200" :src=cityImg aspect-ratio="0.5" cover/>
-                        <v-card-title v-if="lastCityLocales">{{ $t("weatherIn") }} {{ lastCityLocales[currentLocale.current] }}</v-card-title>    
+                        <v-card-title v-if="lastCityLocales">{{ $t("weatherIn") }} {{ lastCityLocales[currentLocale.current.value] }}</v-card-title>    
                         <v-card-text>
                             {{ $t("temperature", [+(weatherData.temp - 273.15).toFixed(0), +(weatherData.feels_like - 273.15).toFixed(0)]) }} <br>
                             <!-- Температура {{ +(weatherJson.current.temp - 273.15).toFixed(0) }} C, ощущается как {{ +(weatherJson.current.feels_like - 273.15).toFixed(0) }} C<br> -->

@@ -1,4 +1,5 @@
 {
+    "title": "Погода",
     "cityFieldPlaceholder": "Город",
     "getWeatherBtn": "Получить погоду",
     "cityRequired": "Необходимо ввести название города",
