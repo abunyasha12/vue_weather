@@ -8,8 +8,8 @@
 
     const locales: Record<string, Record<string, string>> = {
     en: {
-          "name": "English",
-          "code": "en"
+            "name": "English",
+            "code": "en"
         },
     ru: {
             "name": "Русский",
