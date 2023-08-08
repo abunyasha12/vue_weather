@@ -1,0 +1,21 @@
+{
+    "cityFieldPlaceholder": "Город",
+    "getWeatherBtn": "Получить погоду",
+    "cityRequired": "Необходимо ввести название города",
+    "noCityError": "Город не найден",
+    "genericError": "Упс... что-то пошло не так.",
+    "weatherIn": "Погода в городе {0}",
+    "temperature": "Температура: {0} C, по ощущениям {1} C",
+    "sunny": "Ясно",
+    "bitCloud": "Малая облачность",
+    "medCloud": "Облачно",
+    "heavyCloud": "Тучи",
+    "heaviestCloud": "Совсем тучи",
+    "wind": "Ветер {0} м/с",
+    "windNorth": "северный",
+    "windEast": "восточный",
+    "windWest": "западный",
+    "windSouth": "южный",
+    "pressure": "Давление {0} мм рт ст",
+    "humidity": "Относительная влажность {0}%"
+}
